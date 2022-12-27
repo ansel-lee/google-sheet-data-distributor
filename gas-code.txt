@@ -1,0 +1,86 @@
+function myFunction() {
+  
+}
+
+function doPost(e) {
+  var currsheet = SpreadsheetApp.openById("1EFKHZYJk4w5KePJIDlo_4ULRcJYV65tfCiqSNmcZuuA")
+
+  information = JSON.parse(e.postData.contents)
+  //information = JSON.parse('["", "w/ha(t)-characters @re al.lowed", ""]')
+  Logger.log(JSON.stringify(information))
+  var returningInfo = [["error", "code was not fully executed"], "form name", "name", "class", ["keys"], ["values"]];
+
+  if (information.length != 3 || !(/^[a-zA-Z0-9\,\/ \(\)\-\.\@]+$/.test(information[1]))) {
+    // in case a malicious origin initiated the request
+    returningInfo[0] = ["error", "malformed request"]
+    Logger.log("returning " + (JSON.stringify(returningInfo)) + " as the request is malformed.")
+    return ContentService.createTextOutput(JSON.stringify(returningInfo))
+  }
+  
+  var i = 0;
+  var foundSheet = false
+  while (i < currsheet.getSheets().length && foundSheet === false) {
+    try {
+      Logger.log(currsheet.getSheets()[i].getDataRange().getValues()[8][0].length)
+      if (currsheet.getSheets()[i].getDataRange().getValues()[8][0].startsWith("version 2.2")) {
+        // in case a second sheet was crewted, this will not read that.
+        recordingSheet = currsheet.getSheets()[i];
+        recordingSheetData = recordingSheet.getDataRange().getValues();
+        foundSheet = true;
+      }
+    } catch{}
+    i++
+  }
+
+  if (foundSheet) {
+    returningInfo[1] = recordingSheet.getName();
+  } else {
+    returningInfo[0] = ["error", "form does not exist"]
+    Logger.log("returning " + (JSON.stringify(returningInfo)) + " as the form does not exist.")
+    return ContentService.createTextOutput(JSON.stringify(returningInfo))
+  }
+
+
+  // the main aim of this project, find the person and return a response
+  var i = 1
+  var foundPerson = false
+  while (foundPerson === false && !(recordingSheetData[i][2].toString() === "")) {
+    if (recordingSheetData[i][2].toString().toUpperCase() == information[1].toString().toUpperCase()) {foundPerson = true}
+    i++
+  }
+
+  if (foundPerson) {
+    // return values if person is found
+    returningInfo[4] = recordingSheetData[0].slice(4) // start logging from index 4
+    returningInfo[5] = recordingSheetData[i-1].slice(4)
+
+    var j = 0
+    while (j < returningInfo[5].length) {
+      if (returningInfo[5][j] === "^") {
+        returningInfo[5][j] = recordingSheetData[1][j+4]
+      }
+      j++
+    }
+
+    returningInfo[0] = ["success!"]
+    recordingSheet.getRange("B" + i).setValue(true)
+  } else { 
+    // log invalid identifiers
+    returningInfo[0] = ["error", "no such user"]
+    values = recordingSheet.getRange("A20:A").getValues();
+    i = 0;
+    while (values[i] && values[i][0] != "") {i++}; // find first empty row to log
+    if (recordingSheet.getMaxRows() < (i+1)) {recordingSheet.appendRow()};
+    recordingSheet.getRange("A" + (i+20)).setValue(information[1]);
+  }
+
+  var toReturn = JSON.stringify(returningInfo)
+  Logger.log(toReturn)
+  Logger.log(returningInfo)
+  
+  return ContentService.createTextOutput(toReturn)
+}
+
+function doGet() {
+  return HtmlService.createHtmlOutput("<h1>Sorry, you have used an unaccepted type of request. Please try again</h1>")
+}
