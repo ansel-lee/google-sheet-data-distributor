@@ -11,7 +11,10 @@ Google Apps Script file: https://script.google.com/d/15wOJWA5am1g3yIwW-2hLszJqqp
 2. Always ensure that the sheet you are using has "version 2.2" (or whatever text in the script that it is checked against in google apps script) **in cell A9**. Additionally, I highly recommend copying the testing sheet provided above. Column C is for identifiers, D is reserved for a future feature, and E onwardsd will be sent to the requester.  
 3. Regular Expressions in the HTML file _cannot_ be stored in a variable. I've tried, and wasted time troubleshooting it, so nope! Also, if you're changing or removing the RegEx, do remember to change it on the Apps Script side too!  
 I'll add more when I can recall :D   
+
+## Things that I'm still working on ##
+Password Fields that are hashed when travelling from client to server-side and Google sign-in
    
    
- You may email me at ansellee23@gmail.com or lee_jia_Hong_ansel@students.edu.sg if you have any other queries!
- I hope this project is useful to you!
+ Please feel free to email me at ansellee23@gmail.com or lee_jia_Hong_ansel@students.edu.sg for queries, comments, etc...
+ I hope my project will be of use to you!
